@@ -30,7 +30,7 @@ EOF
 
 # Check the status code
 status=$(curl --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null ​http://remote.test.com/status)
-if [[ "$status" -ne 200 ]] ; then
+if [[ "$status" -eq "200" ]] ; then
   echo "status : 200"
 else
   ssh testuser@remote.test.com "systemctl restart node" 
