@@ -3,7 +3,7 @@
 FROM_DATE=""
 TO_DATE=""
 LOG_LEVEL="SEVERE"
-LOGS_DIR="/logs"
+LOGS_DIR="logs"
 
 #read -p 'Enter log level: ' LOG_LEVEL
 #read -p 'Enter log files directory (absolute path): ' LOGS_DIR
