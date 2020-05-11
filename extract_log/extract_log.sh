@@ -12,5 +12,5 @@ LOGS_DIR="/logs"
 
 echo > /extractedlog.txt
 for file in $(find $LOGS_DIR -type f); do 
-    grep "$LOG_LEVEL" $file | awk '$0>=from && $0<=to' from="$FROM_DATE" to="$TO_DATE" | awk -v prefix="$file" '{print prefix $0}' >> /extractedlog.txt
+    grep "$LOG_LEVEL" $file | awk '$0>=from && $0<=to' from="$FROM_DATE" to="$TO_DATE" | awk -v prefix="$file" '{print prefix $0}' >> /test.txt
 done
