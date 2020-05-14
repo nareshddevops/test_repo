@@ -83,15 +83,14 @@ Clone this repository to execute the test scripts locally.
   CONNECTION_STRING = ""
   IP_ADDRESS = ""
   ```
-- Create *'mycode'* directory and clone the github code into *'mycode'* directory
+- Clone the github code into *'mycode'* directory
   ```shell
-  mkdir -p /home/testuser/mycode/
-  cd /home/testuser/mycode/
-  git clone $GIT_REPO_URL
+  cd /home/testuser/
+  git clone $GIT_REPO_URL mycode
   ```
 - Execute *'jsonupdate.py'* python script to update the *'config.json'* objects with the respective variables by passing variables as an arguments to the python script
   ```shell
-  /usr/bin/python jsonupdate.py $USER $API_KEY $CONNECTION_STRING $IP_ADDRESS
+  /usr/bin/python3 /home/testuser/code/nodeapp/jsonupdate.py $USER $API_KEY $CONNECTION_STRING $IP_ADDRESS
   ```
   *'jsonupdate.py'* script will update objects of the *'config.json'* file inside the *'mycode'* directory if they are empty.
   ```python
@@ -115,28 +114,29 @@ Clone this repository to execute the test scripts locally.
   ```
 - Change the ownership of the *'mycode'* directory to user *'testuser'* and archive the *'mycode'* directory
   ```shell
-  chown -R testuser /home/testuser/mycode
-  tar -czf app.tar.gz /home/testuser/mycode/
+  chown -R testuser:testuser /home/testuser/mycode
+  tar -czf app.tar.gz -C mycode .
   md5sum app.tar.gz > appfiles.md5
   ```
 - SCP the archive to remote machine with dns *'remote.test.com'*
   ```shell
-  scp app.tar.gz appfiles.md5 testuser@remote.test.com:/home/testuser/remotecode/
+  scp app.tar.gz appfiles.md5 testuser@remote.test.com:/home/testuser/remotecode
   ```
 - Execute the commands in remote server *'remote.test.com'* using ssh
   ```shell
-  ssh testuser@remote.test.com << EOF
-    systemctl stop node
+  ssh -T testuser@remote.test.com << EOF
+    sudo systemctl stop node
     mv /home/testuser/remotecode/app.* /user/node/data/
+    cd /user/node/data/
     tar -xf app.tar.gz
-    systemctl start node
+    sudo systemctl start node
   EOF
   ```
 - Check the response status code of the endpoint http://remote.test.com/status from local server
   ```shell
-  status=$(curl --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null ​http://remote.test.com/status)
-  if [[ "$status" -eq "200" ]] ; then
-    echo "status : 200"
+  sleep 1s
+  status="$(curl --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null http://remote.test.com/status)"
+  echo "Status : $status"
   ```
 ### 4. Shell script to extract log entries with LOG_LEVEL and timestamps
 
@@ -156,8 +156,9 @@ Clone this repository to execute the test scripts locally.
   ```
 - Create a for loop to get the file names inside the LOGS_DIR and from each file *'grep'* log entries with *'LOG_LEVEL'* and pipe the output to *'awk'* command. Using *'awk'* check the condition to get the log entries in between from and to variables and output to a file test.txt.
   ```shell
-  echo > /extractedlog.txt
-  for file in $(find $LOGS_DIR -type f); do 
-    grep "$LOG_LEVEL" $file | awk '$0>=from && $0<=to' from="$FROM_DATE" to="$TO_DATE" | awk -v prefix="$file" '{print prefix $0}' >> /test.txt
+  echo > /home/testuser/test.txt
+  for file in $(find $LOGS_DIR -type f); do
+    grep "$LOG_LEVEL" $file | awk '$0>=from && $0<=to' from="$FROM_DATE" to="$TO_DATE" | awk -v prefix="$file " '{print prefix $0}' >> /home/testuser/test.txt
+done
   done
   ```
